@@ -1,0 +1,22 @@
+{
+  "name": "Tuấn Min - Xem Phim",
+  "short_name": "Tuấn Min",
+  "description": "Xem phim online",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#141414",
+  "theme_color": "#141414",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://phim.nguonc.com/public/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://phim.nguonc.com/public/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
