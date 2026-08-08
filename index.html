@@ -339,9 +339,90 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
 .filter-reset{height:39px;border:1px solid #33333e;background:#22222a;color:#fff;border-radius:9px;padding:0 16px;cursor:pointer}
 .filter-reset:hover{background:var(--accent);border-color:var(--accent)}
 @media(max-width:700px){.filter-control{min-width:calc(50% - 6px)}.filter-reset{width:100%}}
+
+/* ===== Welcome + Login gate ===== */
+.gate-overlay{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(4,4,8,.92);backdrop-filter:blur(18px);
+  overflow:auto;
+}
+.gate-overlay.hidden{display:none}
+.gate-card{
+  width:100%;max-width:420px;background:linear-gradient(180deg,#16161e,#0e0e14);
+  border:1px solid rgba(255,255,255,.08);border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.55);padding:28px 24px 22px;
+  animation:gateIn .45s ease;
+}
+@keyframes gateIn{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+.gate-logo{text-align:center;font-size:1.8rem;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.gate-logo .r{color:var(--accent)}
+.gate-step{display:none}
+.gate-step.active{display:block}
+.gate-title{font-size:1.25rem;font-weight:700;text-align:center;margin:10px 0 8px}
+.gate-text{color:var(--muted);font-size:.9rem;line-height:1.65;text-align:center;margin-bottom:18px}
+.gate-features{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:8px}
+.gate-features li{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:10px 12px;font-size:.84rem;color:#d8d8e0;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.gate-features li span{color:var(--accent);font-weight:700}
+.gate-field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.gate-field label{font-size:.75rem;color:var(--muted);font-weight:600}
+.gate-field input{
+  height:44px;border-radius:10px;border:1px solid var(--border);
+  background:#121218;color:#fff;padding:0 14px;outline:none;font:inherit;
+}
+.gate-field input:focus{border-color:var(--accent)}
+.gate-error{display:none;color:#ff7880;font-size:.82rem;text-align:center;margin:0 0 10px}
+.gate-error.show{display:block}
+.gate-actions{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.gate-actions .primary,.gate-actions .secondary{width:100%;padding:12px 16px;border-radius:10px}
+.gate-hint{text-align:center;color:var(--muted);font-size:.72rem;margin-top:12px;line-height:1.5}
+.gate-hello{text-align:center;font-size:1.05rem;margin:8px 0 14px;color:#eee}
+.gate-hello strong{color:#fff}
+
 </style>
 </head>
 <body>
+
+<div class="gate-overlay" id="gateOverlay" role="dialog" aria-modal="true" aria-label="Chào mừng TUANMIN">
+  <div class="gate-card">
+    <div class="gate-logo"><span class="r">TUAN</span>MIN</div>
+
+    <div class="gate-step active" id="gateIntro">
+      <h2 class="gate-title">Chào mừng bạn 👋</h2>
+      <p class="gate-text">
+        <strong>TUANMIN Movie</strong> là trang xem phim online HD/4K Vietsub —
+        giao diện nhanh, gọn, tối ưu cho điện thoại. Lưu phim yêu thích và tiếp tục xem bất cứ lúc nào.
+      </p>
+      <ul class="gate-features">
+        <li><span>▶</span> Phim hot Hàn · Trung cập nhật liên tục</li>
+        <li><span>♥</span> Danh sách yêu thích trên thiết bị của bạn</li>
+        <li><span>📱</span> Thêm màn hình chính để xem như app</li>
+      </ul>
+      <div class="gate-field">
+        <label for="gateName">Tên của bạn <span style="color:var(--accent)">*</span></label>
+        <input id="gateName" type="text" autocomplete="name" placeholder="Nhập tên của bạn..." maxlength="40" required>
+      </div>
+      <div class="gate-error" id="gateNameError">Vui lòng nhập tên trước khi vào xem.</div>
+      <div class="gate-actions">
+        <button type="button" class="primary" id="gateEnter">Vào xem phim</button>
+      </div>
+      <p class="gate-hint">BY NGO VAN TUAN</p>
+    </div>
+
+    <div class="gate-step" id="gateHello">
+      <h2 class="gate-title">Xin chào!</h2>
+      <p class="gate-hello" id="gateHelloText">Chúc bạn xem phim vui vẻ &lt;3</p>
+      <div class="gate-actions">
+        <button type="button" class="primary" id="gateStart">Bắt đầu xem</button>
+      </div>
+      <p class="gate-hint">BY NGO VAN TUAN</p>
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="header-inner">
     <a class="logo" href="#" id="logoHome" aria-label="TUANMIN"><span class="logo-letter red">T</span><span class="logo-letter red">U</span><span class="logo-letter red">A</span><span class="logo-letter red">N</span><span class="logo-letter white">M</span><span class="logo-letter white">I</span><span class="logo-letter white">N</span></a>
@@ -520,6 +601,40 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
 </div>
 
 <script>
+
+/* Safe storage: fallback khi sandbox chặn localStorage/sessionStorage */
+const _memStore=new Map();
+function storageAvailable(kind){
+  try{
+    const s=window[kind];
+    const k='__tm_test__';
+    s.setItem(k,'1'); s.removeItem(k);
+    return true;
+  }catch(_){ return false; }
+}
+const _hasLocal=storageAvailable('localStorage');
+const _hasSession=storageAvailable('sessionStorage');
+function lsGet(key){
+  try{ if(_hasLocal) return localStorage.getItem(key); }catch(_){}
+  return _memStore.has('ls:'+key) ? _memStore.get('ls:'+key) : null;
+}
+function lsSet(key, val){
+  try{ if(_hasLocal){ localStorage.setItem(key, val); return; } }catch(_){}
+  _memStore.set('ls:'+key, val);
+}
+function lsDel(key){
+  try{ if(_hasLocal){ localStorage.removeItem(key); return; } }catch(_){}
+  _memStore.delete('ls:'+key);
+}
+function ssGet(key){
+  try{ if(_hasSession) return sessionStorage.getItem(key); }catch(_){}
+  return _memStore.has('ss:'+key) ? _memStore.get('ss:'+key) : null;
+}
+function ssSet(key, val){
+  try{ if(_hasSession){ sessionStorage.setItem(key, val); return; } }catch(_){}
+  _memStore.set('ss:'+key, val);
+}
+
 const API_BASE='https://phim.nguonc.com/api';
 const API_TIMEOUT=10000;
 const API_CACHE_TTL=120000; // 2 phút
@@ -530,7 +645,7 @@ function cacheGet(url){
   const mem=apiMemCache.get(url);
   if(mem && Date.now()-mem.t < API_CACHE_TTL) return mem.d;
   try{
-    const raw=sessionStorage.getItem('tm_cache:'+url);
+    const raw=ssGet('tm_cache:'+url);
     if(!raw) return null;
     const parsed=JSON.parse(raw);
     if(Date.now()-parsed.t < API_CACHE_TTL){
@@ -543,7 +658,7 @@ function cacheGet(url){
 function cacheSet(url,data){
   const entry={t:Date.now(),d:data};
   apiMemCache.set(url,entry);
-  try{sessionStorage.setItem('tm_cache:'+url,JSON.stringify(entry))}catch(_){}
+  try{ssSet('tm_cache:'+url,JSON.stringify(entry))}catch(_){}
 }
 async function apiFetch(url,opt={}){
   if(!opt.noCache){
@@ -605,8 +720,8 @@ let currentPlaySrc='';
 const API_PAGES_PER_VIEW=5;
 let mainFullList=false;
 
-function favs(){try{return JSON.parse(localStorage.getItem('tuanmin_favs')||'[]')}catch{return[]}}
-function setFavs(x){localStorage.setItem('tuanmin_favs',JSON.stringify(x))}
+function favs(){try{return JSON.parse(lsGet('tuanmin_favs')||'[]')}catch{return[]}}
+function setFavs(x){lsSet('tuanmin_favs',JSON.stringify(x))}
 function isFav(slug){return favs().some(x=>x.slug===slug)}
 function toggleFav(item){
   let f=favs(); const i=f.findIndex(x=>x.slug===item.slug);
@@ -614,11 +729,11 @@ function toggleFav(item){
   setFavs(f); renderContinue(); return i<0;
 }
 function saveHistory(movie,epName){
-  let h=[];try{h=JSON.parse(localStorage.getItem('tuanmin_history')||'[]')}catch{}
+  let h=[];try{h=JSON.parse(lsGet('tuanmin_history')||'[]')}catch{}
   const item={slug:movie.slug,name:movie.name,poster_url:movie.poster_url||movie.thumb_url||'',ep:epName||movie.current_episode||'',time:Date.now()};
-  h=[item,...h.filter(x=>x.slug!==item.slug)].slice(0,12);localStorage.setItem('tuanmin_history',JSON.stringify(h));renderContinue();
+  h=[item,...h.filter(x=>x.slug!==item.slug)].slice(0,12);lsSet('tuanmin_history',JSON.stringify(h));renderContinue();
 }
-function history(){try{return JSON.parse(localStorage.getItem('tuanmin_history')||'[]')}catch{return[]}}
+function history(){try{return JSON.parse(lsGet('tuanmin_history')||'[]')}catch{return[]}}
 
 
 const hotRow=$('hotRow'), countryRow=$('countryRow');
@@ -1133,6 +1248,50 @@ function closePlayer(){
 function escapeHtml(s){return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 function escapeAttr(s){return escapeHtml(s)}
 
+
+/* ===== Welcome gate: nhập tên + lời chào ===== */
+function gateOpen(){
+  const ov=$('gateOverlay');
+  if(ov) ov.classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+function gateClose(){
+  const ov=$('gateOverlay');
+  if(ov) ov.classList.add('hidden');
+  document.body.style.overflow='';
+}
+function gateShowStep(id){
+  document.querySelectorAll('.gate-step').forEach(s=>s.classList.remove('active'));
+  const el=$(id); if(el) el.classList.add('active');
+}
+function initGate(){
+  const ov=$('gateOverlay');
+  if(!ov) return;
+  gateShowStep('gateIntro');
+  gateOpen();
+  const nameIn=$('gateName'), enter=$('gateEnter'), start=$('gateStart'), helloText=$('gateHelloText'), nameErr=$('gateNameError');
+  if(nameIn){
+    try{ const saved=lsGet('tuanmin_name'); if(saved) nameIn.value=saved; }catch(_){}
+    nameIn.addEventListener('keydown', e=>{ if(e.key==='Enter') enter?.click(); });
+    nameIn.addEventListener('input', ()=>{ if(nameErr) nameErr.classList.remove('show'); });
+  }
+  if(enter) enter.onclick=()=>{
+    const name=(nameIn?.value||'').trim();
+    if(!name){
+      if(nameErr) nameErr.classList.add('show');
+      if(nameIn){ nameIn.focus(); nameIn.style.borderColor='var(--accent)'; }
+      return;
+    }
+    if(nameIn) nameIn.style.borderColor='';
+    if(nameErr) nameErr.classList.remove('show');
+    try{ lsSet('tuanmin_name', name); }catch(_){}
+    if(helloText) helloText.innerHTML=`Chúc <strong>${escapeHtml(name)}</strong> xem phim vui vẻ &lt;3`;
+    gateShowStep('gateHello');
+  };
+  if(start) start.onclick=()=>gateClose();
+}
+
+
 document.querySelectorAll('nav button[data-type]').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentType=btn.dataset.type;currentPage=1;searchInput.value='';clearSearch.style.display='none';if(btn.dataset.type==='moi'){showHomeLayout()}else{const hot=$('hotRow')?.closest('.hot-section');if(hot)hot.style.display='none';const hero=document.querySelector('.hero');if(hero)hero.style.display='none';if($('homeCountrySections'))$('homeCountrySections').style.display='none';}loadMovies()});
 $('logoHome').onclick=e=>{e.preventDefault();currentType='moi';currentPage=1;searchInput.value='';document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.querySelector('nav button[data-type="moi"]').classList.add('active');showHomeLayout();loadMovies();scrollTo({top:0,behavior:'smooth'})};
 searchInput.oninput=()=>{clearTimeout(searchTimeout);clearSearch.style.display=searchInput.value?'block':'none';searchTimeout=setTimeout(()=>{currentPage=1;searchInput.value.trim()?loadSearch(searchInput.value.trim()):loadMovies()},400)};
@@ -1218,6 +1377,7 @@ if(resetFilters)resetFilters.onclick=()=>{
   loadMovies();
 };
 
+initGate();
 const latestMoreBtn=$('latestMoreBtn');
 if(latestMoreBtn) latestMoreBtn.onclick=()=>{
   mainFullList=true;
