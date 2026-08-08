@@ -32,7 +32,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,7,10,.88);backdrop-fi
 .header-inner{max-width:1500px;margin:auto;padding:12px 22px;display:flex;align-items:center;gap:22px}
 .logo{
   font-size:1.55rem;font-weight:800;letter-spacing:-.5px;white-space:nowrap;
-  position:relative;display:inline-flex;align-items:baseline;gap:0;line-height:1;
+  position:relative;display:inline-flex;align-items:baseline;justify-content:flex-start;gap:0;line-height:1;
 }
 .logo .logo-letter{
   display:inline-block;
@@ -88,10 +88,18 @@ header{position:sticky;top:0;z-index:100;background:rgba(7,7,10,.88);backdrop-fi
 .search input:focus{border-color:var(--accent)}
 .search svg{position:absolute;left:14px;top:12px;width:18px;color:var(--muted)}
 .search .clear{position:absolute;right:12px;top:8px;border:0;background:transparent;color:var(--muted);font-size:22px;display:none}
-nav{display:flex;gap:4px;margin-left:auto}
-nav button,.icon-btn{border:0;background:transparent;color:var(--muted);padding:9px 12px;border-radius:8px}
-nav button:hover,nav button.active,.icon-btn:hover{background:var(--hover);color:#fff}
-nav button.active{color:var(--accent2)}
+nav{display:flex;gap:6px;margin-left:auto;align-items:center}
+nav button,.icon-btn{
+  border:0;background:transparent;color:var(--muted);
+  padding:8px 14px;border-radius:999px;font-size:.9rem;font-weight:600;
+  transition:background .2s,color .2s,box-shadow .2s,transform .15s;
+}
+nav button:hover,.icon-btn:hover{background:var(--hover);color:#fff}
+nav button.active{
+  color:#fff;background:linear-gradient(135deg,#e50914,#ff3340);
+  box-shadow:0 6px 18px rgba(229,9,20,.35);
+}
+#favNav.active{background:linear-gradient(135deg,#e50914,#ff3340);color:#fff}
 main{max-width:1500px;margin:auto;padding:0 22px 70px}
 .hero{
   min-height:460px;margin:0 -22px 34px;padding:0;display:block;position:relative;overflow:hidden;
@@ -166,17 +174,18 @@ main{max-width:1500px;margin:auto;padding:0 22px 70px}
 
 .movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:18px}
 .home-country-section{margin:42px 0 0}
-.home-country-row{display:grid;grid-auto-flow:column;grid-auto-columns:155px;grid-template-rows:1fr;gap:12px;overflow-x:auto;padding:4px 4px 14px 2px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.home-country-row{display:grid;grid-auto-flow:column;grid-auto-columns:155px;grid-template-rows:auto;gap:12px;overflow-x:auto;padding:4px 4px 14px 2px;scroll-snap-type:x proximity;scrollbar-width:thin;align-items:start}
 .home-country-row::-webkit-scrollbar{height:6px}.home-country-row::-webkit-scrollbar-thumb{background:#333;border-radius:99px}
-.home-country-row .card{min-width:155px;scroll-snap-align:start}
+.home-country-row .card{min-width:0;width:100%;scroll-snap-align:start;height:auto}
 .home-country-row .card:hover{transform:translateY(-7px) scale(1.02)}
+.home-country-row .card-info{padding:8px 8px 10px}
+.home-country-row .card-actions{display:none}
 .home-country-more{font-size:.78rem;color:var(--muted)}.home-country-actions{display:flex;justify-content:center;margin-top:12px}
 .home-country-loadmore{border:1px solid var(--border);background:#15151c;color:#fff;border-radius:9px;padding:9px 18px;font-weight:700;transition:.2s}
 .home-country-loadmore:hover{background:var(--accent);border-color:var(--accent);transform:translateY(-2px)}
 .home-country-loadmore:disabled{opacity:.55;cursor:wait;transform:none}
-.home-country-row .card{width:100%}
 
-.card{background:var(--card);border:1px solid transparent;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative;content-visibility:auto;contain-intrinsic-size:0 320px}
+.card{background:var(--card);border:1px solid transparent;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative}
 .card:hover{transform:translateY(-8px) scale(1.015);border-color:#3a3a45;box-shadow:0 18px 42px rgba(0,0,0,.55);z-index:2}
 .poster{aspect-ratio:2/3;position:relative;overflow:hidden;background:#1a1a22}
 .poster img{width:100%;height:100%;object-fit:cover;transition:transform .35s;background:#1a1a22}
@@ -192,7 +201,7 @@ main{max-width:1500px;margin:auto;padding:0 22px 70px}
 .hot-section{margin:8px 0 34px}
 .horizontal-row{display:flex;gap:15px;overflow-x:auto;overflow-y:hidden;padding:4px 5px 14px 2px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
 .horizontal-row::-webkit-scrollbar{height:6px}.horizontal-row::-webkit-scrollbar-thumb{background:#303039;border-radius:99px}
-.hot-card{flex:0 0 165px;scroll-snap-align:start;background:var(--card);border:1px solid transparent;border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative}
+.hot-card{flex:0 0 165px;scroll-snap-align:start;background:var(--card);border:1px solid transparent;border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative;height:auto;align-self:start}
 .hot-card:hover{transform:translateY(-9px) scale(1.025);border-color:#3a3a45;box-shadow:0 18px 38px rgba(0,0,0,.55);z-index:2}
 .hot-card .poster{aspect-ratio:2/3}
 .hot-rank{position:absolute;left:7px;bottom:8px;width:31px;height:31px;border-radius:8px;background:rgba(0,0,0,.78);display:grid;place-items:center;font-weight:800;font-size:.85rem;z-index:2}
@@ -232,7 +241,39 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
 .open-ext-btn:hover{background:var(--accent);border-color:var(--accent)}
 .modal-body{padding:20px}.meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.84rem;margin-bottom:14px}.meta strong{color:#fff;font-weight:600}.desc{color:var(--muted);font-size:.9rem;line-height:1.65;margin-bottom:18px}
 .block{margin-bottom:17px}.block h4{font-size:.9rem;margin-bottom:9px}.buttons{display:flex;flex-wrap:wrap;gap:7px}.choice{background:#0e0e13;border:1px solid var(--border);color:#fff;border-radius:7px;padding:7px 12px;font-size:.8rem}.choice:hover,.choice.active{background:var(--accent);border-color:var(--accent)}
-@media(max-width:900px){.header-inner{flex-wrap:wrap}.search{order:3;flex-basis:100%;max-width:none}nav{margin-left:0;overflow:auto}.hero{min-height:400px}.hero-content{padding:56px 7% 48px;min-height:400px}.hero-nav{width:36px;height:36px}.movie-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}.player-wrap{grid-template-columns:1fr}.player{max-height:42vh;min-height:140px}.player-side{border-left:0;border-top:1px solid var(--border);max-height:min(38vh,280px)}}
+@media(max-width:900px){
+  .header-inner{flex-wrap:wrap;justify-content:center;gap:10px;padding:10px 16px}
+  .logo{order:1;width:100%;justify-content:center;font-size:1.45rem}
+  nav{
+    order:2;margin-left:0;width:100%;justify-content:flex-start;
+    overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+    gap:6px;padding:2px 2px 4px;scrollbar-width:none;
+  }
+  nav::-webkit-scrollbar{display:none}
+  nav button{
+    flex:0 0 auto;padding:7px 12px;font-size:.78rem;font-weight:600;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  }
+  nav button.active{
+    background:linear-gradient(135deg,#e50914,#ff3340);
+    border-color:transparent;color:#fff;
+  }
+  .search{order:3;flex-basis:100%;max-width:none}
+  .search input{height:40px;font-size:.9rem}
+  .hero{min-height:400px}.hero-content{padding:56px 7% 48px;min-height:400px}.hero-nav{width:36px;height:36px}
+  .movie-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+  .home-country-row{grid-auto-columns:118px;gap:9px}
+  .hot-card{flex-basis:118px}
+  .horizontal-row{gap:9px}
+  .card-info{padding:8px}
+  .card h3{font-size:.78rem}
+  .card-actions{display:none}
+  .hot-card-info{padding:7px 8px 10px}
+  .hot-card-info h3{font-size:.76rem}
+  .player-wrap{grid-template-columns:1fr}
+  .player{max-height:42vh;min-height:140px}
+  .player-side{border-left:0;border-top:1px solid var(--border);max-height:min(38vh,280px)}
+}
 /* Điện thoại xoay ngang: player nhỏ, server/tập bên cạnh dễ bấm */
 @media(orientation:landscape) and (max-height:520px){
   .modal-overlay{padding:4px}
@@ -250,7 +291,44 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
   .player-side{max-height:min(56vh,180px)}
   .modal-body{display:none}
 }
-@media(max-width:600px){main{padding:0 13px 50px}.hero{margin:0 -13px 25px;min-height:380px}.hero-content{padding:48px 18px 42px;min-height:380px}.hero h1{font-size:1.65rem}.hero p{font-size:.88rem}.hero-nav{display:none}.hero-dots{left:18px;bottom:14px}.movie-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card-info{padding:9px}.card h3{font-size:.82rem}.header-inner{padding:10px 13px}.logo{font-size:1.35rem}}
+@media(max-width:600px){
+  main{padding:0 12px 50px}
+  .header-inner{padding:8px 12px 10px;gap:8px}
+  .logo{font-size:1.35rem;width:100%;justify-content:center}
+  nav{
+    justify-content:flex-start;gap:5px;
+    mask-image:linear-gradient(90deg,#000 90%,transparent);
+    -webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);
+  }
+  nav button{padding:6px 11px;font-size:.74rem;border-radius:999px}
+  .search input{height:38px}
+  .hero{margin:0 -12px 22px;min-height:360px}
+  .hero-content{padding:44px 16px 40px;min-height:360px}
+  .hero h1{font-size:1.55rem}
+  .hero p{font-size:.86rem}
+  .hero-nav{display:none}
+  .hero-dots{left:16px;bottom:14px}
+  .home-country-row{grid-auto-columns:104px;gap:8px;padding:2px 2px 12px;align-items:start}
+  .home-country-row .card{border-radius:10px;height:auto}
+  .home-country-row .card-info{padding:6px 7px 8px}
+  .home-country-row .card h3{font-size:.72rem;-webkit-line-clamp:2}
+  .home-country-row .card-meta{font-size:.64rem}
+  .home-country-row .badge{font-size:.58rem;padding:2px 5px}
+  .home-country-row .favorite{width:26px;height:26px;font-size:.8rem}
+  .hot-card{flex:0 0 104px;border-radius:10px;height:auto}
+  .hot-card-info{padding:6px 7px 8px}
+  .hot-card-info h3{font-size:.72rem}
+  .hot-card-info span{font-size:.62rem}
+  .hot-rank{width:24px;height:24px;font-size:.72rem;left:5px;bottom:6px}
+  .horizontal-row{gap:8px;align-items:flex-start}
+  .movie-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .movie-grid .card-info{padding:6px 7px 8px}
+  .movie-grid .card h3{font-size:.72rem}
+  .movie-grid .card-actions{display:none}
+  .card-actions{display:none}
+  .card-info{padding:6px 7px 8px}
+  .card h3{font-size:.72rem}
+}
  
 .filter-section{margin:10px 0 26px}
 .filter-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;background:linear-gradient(180deg,#121218,#0d0d12);border:1px solid var(--border);border-radius:14px;padding:13px}
@@ -332,7 +410,7 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
   <section class="filter-section">
     <div class="section-head">
       <h2 class="section-title">🎯 Lọc phim</h2>
-      <span class="section-sub">NguonC · Thể loại / Quốc gia / Năm phát hành</span>
+      <span class="section-sub">Thể loại / Quốc gia / Năm phát hành</span>
     </div>
     <div class="filter-bar">
       <label class="filter-control">
@@ -393,11 +471,19 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
     <div id="continueRow" class="continue-row"></div>
   </section>
 
-  <div class="section-head">
+  <div class="section-head" id="mainListHead">
     <h2 class="section-title" id="sectionTitle">Phim mới cập nhật</h2>
     <span class="section-sub" id="resultCount"></span>
   </div>
-  <div id="movieGrid" class="movie-grid"><div class="loading"><div class="spinner"></div>Đang tải danh sách phim...</div></div>
+  <div id="latestPreview" class="home-country-section" style="margin-top:0">
+    <div id="latestRow" class="home-country-row">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div class="home-country-actions">
+      <button class="home-country-loadmore" type="button" id="latestMoreBtn">＋ Xem thêm</button>
+    </div>
+  </div>
+  <div id="movieGrid" class="movie-grid" style="display:none"></div>
   <div class="pagination" id="pagination"></div>
 
   <div id="homeCountrySections"></div>
@@ -517,6 +603,7 @@ function listUrlForPage(page){
 const movieGrid=$('movieGrid'),pagination=$('pagination'),sectionTitle=$('sectionTitle'),errorBox=$('errorBox'),searchInput=$('searchInput'),typeFilter=$('typeFilter'),yearFilter=$('yearFilter'),genreFilter=$('genreFilter'),filterCountry=$('filterCountry'),resetFilters=$('resetFilters'),clearSearch=$('clearSearch'),playerModal=$('playerModal'),playerFrame=$('playerFrame'),modalTitle=$('modalTitle'),modalMeta=$('modalMeta'),modalDesc=$('modalDesc'),serverList=$('serverList'),epList=$('epList'),serverSection=$('serverSection'),epSection=$('epSection'),playerLoading=$('playerLoading'),playerFallback=$('playerFallback'),openExtBtn=$('openExtBtn'),retryPlayerBtn=$('retryPlayerBtn'),openExtSideBtn=$('openExtSideBtn');
 let currentPlaySrc='';
 const API_PAGES_PER_VIEW=5;
+let mainFullList=false;
 
 function favs(){try{return JSON.parse(localStorage.getItem('tuanmin_favs')||'[]')}catch{return[]}}
 function setFavs(x){localStorage.setItem('tuanmin_favs',JSON.stringify(x))}
@@ -680,8 +767,10 @@ async function loadHotMovies(){
 }
 
 async function loadCountry(slug,label){
-  if(!slug){currentType='moi';currentPage=1;loadMovies();return}
+  if(!slug){currentType='moi';currentPage=1;mainFullList=false;loadMovies();return}
   hideError();
+  const lp=$('latestPreview'); if(lp) lp.style.display='none';
+  movieGrid.style.display='grid';
   movieGrid.innerHTML='<div class="loading"><div class="spinner"></div>Đang tải phim...</div>';
   pagination.innerHTML='';
   sectionTitle.textContent=`Phim ${label}`;
@@ -793,6 +882,8 @@ function showHomeLayout(){
     b.classList.toggle('active', !(b.dataset.country));
   });
   if(filterCountry) filterCountry.value='';
+  mainFullList=false;
+  currentPage=1;
 }
 
 
@@ -819,10 +910,47 @@ function getListUrl(){
 const titles={moi:'Tất cả phim · Mới cập nhật','phim-le':'Phim lẻ','phim-bo':'Phim bộ','hoat-hinh':'Hoạt hình'};
 
 async function loadMovies(){
-  if($('homeCountrySections'))$('homeCountrySections').style.display=(currentPage===1 && currentType==='moi' && !yearFilter?.value && !genreFilter?.value && !filterCountry?.value)?'block':'none';
-  hideError();movieGrid.innerHTML='<div class="loading"><div class="spinner"></div>Đang tải danh sách phim...</div>';pagination.innerHTML='';sectionTitle.textContent=titles[currentType]||'Danh sách phim';
+  const isHome = currentType==='moi' && !yearFilter?.value && !genreFilter?.value && !filterCountry?.value;
+  const previewMode = isHome && !mainFullList;
+  if($('homeCountrySections')) $('homeCountrySections').style.display=(isHome && currentPage===1)?'block':'none';
+  const latestPreview=$('latestPreview');
+  hideError();
+  sectionTitle.textContent=titles[currentType]||'Danh sách phim';
+
+  if(previewMode){
+    // Trang chủ: hàng ngang ~10 phim + Xem thêm
+    if(latestPreview) latestPreview.style.display='block';
+    movieGrid.style.display='none';
+    pagination.innerHTML='';
+    $('resultCount').textContent='Vuốt ngang · 10 phim';
+    const row=$('latestRow');
+    if(row) row.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+    try{
+      const data=await apiFetch(listUrlForPage(1));
+      const items=(data.items||[]).slice(0,10);
+      if(!items.length){
+        if(row) row.innerHTML='<div class="empty">Không có phim nào.</div>';
+        return;
+      }
+      const rerender=()=>{
+        row.innerHTML=items.map(movieCardMarkup).join('');
+        bindMovieCards(row,items,rerender);
+      };
+      rerender();
+    }catch(e){
+      if(row) row.innerHTML='<div class="empty">Không tải được dữ liệu.<br><button id="retryMovies" class="small-btn" style="margin-top:12px">↻ Thử lại</button></div>';
+      showError(e.message||'Lỗi mạng');
+      const r=$('retryMovies');if(r)r.onclick=loadMovies;
+    }
+    return;
+  }
+
+  // Danh sách dọc đầy đủ
+  if(latestPreview) latestPreview.style.display='none';
+  movieGrid.style.display='grid';
+  movieGrid.innerHTML='<div class="loading"><div class="spinner"></div>Đang tải danh sách phim...</div>';
+  pagination.innerHTML='';
   try{
-    // Mỗi "trang" UI = API_PAGES_PER_VIEW trang API (~50 phim)
     const startApiPage=(currentPage-1)*API_PAGES_PER_VIEW+1;
     const {items, totalPages: apiTotal}=await fetchManyPages(listUrlForPage, startApiPage, API_PAGES_PER_VIEW);
     totalPages=Math.max(1, Math.ceil((apiTotal||1)/API_PAGES_PER_VIEW));
@@ -835,6 +963,8 @@ async function loadMovies(){
 }
 async function loadSearch(keyword){
   if($('homeCountrySections'))$('homeCountrySections').style.display='none';
+  const lp=$('latestPreview'); if(lp) lp.style.display='none';
+  movieGrid.style.display='grid';
   hideError();movieGrid.innerHTML='<div class="loading"><div class="spinner"></div>Đang tìm kiếm...</div>';pagination.innerHTML='';sectionTitle.textContent=`Kết quả: "${keyword}"`;
   try{
     const base=p=>`${API_BASE}/films/search?keyword=${encodeURIComponent(keyword)}&page=${p}`;
@@ -1028,6 +1158,9 @@ playerFrame.addEventListener('error',()=>{
 $('heroFav').onclick=()=>showFavorites();$('favNav').onclick=showFavorites;
 function showFavorites(){
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));$('favNav').classList.add('active');sectionTitle.textContent='Phim yêu thích';pagination.innerHTML='';hideError();
+  const lp=$('latestPreview'); if(lp) lp.style.display='none';
+  if($('homeCountrySections')) $('homeCountrySections').style.display='none';
+  movieGrid.style.display='grid';
   const f=favs();$('resultCount').textContent=`${f.length} phim`;
   if(!f.length){movieGrid.innerHTML='<div class="empty">Bạn chưa lưu phim nào. Bấm ♡ ở poster để thêm.</div>';return}
   renderMovies(f);
@@ -1067,7 +1200,8 @@ function applyFilters(){
   currentPage=1;
   currentType=typeFilter?.value||'moi';
   document.querySelectorAll('nav button[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===currentType));
-  const hasFilter=!!(yearFilter?.value||genreFilter?.value||filterCountry?.value);
+  const hasFilter=!!(yearFilter?.value||genreFilter?.value||filterCountry?.value||(currentType&&currentType!=='moi'));
+  mainFullList=hasFilter; // lọc / loại phim → danh sách dọc
   sectionTitle.textContent=yearFilter?.value?`Phim năm ${yearFilter.value}`:
     genreFilter?.value?`Phim ${genreFilter.options[genreFilter.selectedIndex].text}`:
     filterCountry?.value?`Phim ${filterCountry.options[filterCountry.selectedIndex].text}`:
@@ -1084,6 +1218,18 @@ if(resetFilters)resetFilters.onclick=()=>{
   loadMovies();
 };
 
+const latestMoreBtn=$('latestMoreBtn');
+if(latestMoreBtn) latestMoreBtn.onclick=()=>{
+  mainFullList=true;
+  currentPage=1;
+  currentType='moi';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  const moiBtn=document.querySelector('nav button[data-type="moi"]');
+  if(moiBtn) moiBtn.classList.add('active');
+  loadMovies();
+  const anchor=$('sectionTitle')||movieGrid;
+  if(anchor) setTimeout(()=>anchor.scrollIntoView({behavior:'smooth',block:'start'}),40);
+};
 bindHeroSwipe();
 // Tải song song banner + hot + danh sách chính
 Promise.all([loadHeroBanner(), loadHotMovies(), loadMovies()]);
