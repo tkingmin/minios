@@ -2,15 +2,18 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>TUANMIN — Xem Phim Online HD/4K Vietsub</title>
 <meta name="theme-color" content="#07070a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TUANMIN">
+<meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%2307070a'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-family='system-ui,sans-serif' font-weight='800' font-size='140' fill='%23e50914'%3ETM%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://phim.nguonc.com" crossorigin>
@@ -24,8 +27,26 @@
   --border:#292932;--radius:12px;--shadow:0 14px 40px rgba(0,0,0,.48);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+html{scroll-behavior:smooth;height:100%;background:var(--bg)}
+body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;line-height:1.5;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+/* PWA standalone: ẩn chrome Safari / thanh dưới */
+@media all and (display-mode: standalone){
+  html,body{overscroll-behavior:none}
+  body{min-height:100dvh;padding-bottom:max(env(safe-area-inset-bottom),0px)}
+}
+@media all and (display-mode: fullscreen){
+  html,body{overscroll-behavior:none}
+}
+/* iOS Safari standalone (navigator.standalone) */
+html.pwa-standalone,html.pwa-standalone body{
+  overscroll-behavior:none;
+  min-height:100%;
+  min-height:100dvh;
+  background:#07070a;
+}
+html.pwa-standalone body{
+  padding-bottom:max(env(safe-area-inset-bottom),12px);
+}
 button,input{font:inherit}button{cursor:pointer}
 a{color:inherit;text-decoration:none}
 header{position:sticky;top:0;z-index:100;background:rgba(7,7,10,.88);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07)}
@@ -601,6 +622,16 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
 </div>
 
 <script>
+/* PWA standalone — ẩn thanh Safari / chrome trình duyệt */
+(function(){
+  const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+    || (window.navigator && window.navigator.standalone === true)
+    || (document.referrer && document.referrer.includes('android-app://'));
+  if(isStandalone){
+    document.documentElement.classList.add('pwa-standalone');
+    try{ document.documentElement.style.setProperty('--pwa','1'); }catch(_){}
+  }
+})();
 
 /* Safe storage: fallback khi sandbox chặn localStorage/sessionStorage */
 const _memStore=new Map();
@@ -1249,7 +1280,47 @@ function escapeHtml(s){return s==null?'':String(s).replace(/&/g,'&amp;').replace
 function escapeAttr(s){return escapeHtml(s)}
 
 
-/* ===== Welcome gate: nhập tên + lời chào ===== */
+/* ===== Welcome gate: lưu tên mãi mãi + chào lại sau 24h ===== */
+const GATE_NAME_KEY='tuanmin_name';
+const GATE_VISIT_KEY='tuanmin_last_visit';
+const GATE_24H=24*60*60*1000;
+
+function cookieGet(name){
+  try{
+    const m=document.cookie.match(new RegExp('(?:^|; )'+name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1')+'=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }catch(_){ return null; }
+}
+function cookieSet(name, value, days){
+  try{
+    const maxAge=Math.floor((days||3650)*24*60*60); // mặc định ~10 năm
+    document.cookie=name+'='+encodeURIComponent(value)+';path=/;max-age='+maxAge+';SameSite=Lax';
+  }catch(_){}
+}
+function saveNameForever(name){
+  lsSet(GATE_NAME_KEY, name);
+  cookieSet(GATE_NAME_KEY, name, 3650);
+}
+function loadSavedName(){
+  let n=null;
+  try{ n=lsGet(GATE_NAME_KEY); }catch(_){}
+  if(!n) n=cookieGet(GATE_NAME_KEY);
+  if(n) n=String(n).trim();
+  return n || '';
+}
+function saveLastVisit(){
+  const ts=String(Date.now());
+  lsSet(GATE_VISIT_KEY, ts);
+  cookieSet(GATE_VISIT_KEY, ts, 3650);
+}
+function loadLastVisit(){
+  let t=null;
+  try{ t=lsGet(GATE_VISIT_KEY); }catch(_){}
+  if(!t) t=cookieGet(GATE_VISIT_KEY);
+  const n=Number(t);
+  return Number.isFinite(n) && n>0 ? n : 0;
+}
+
 function gateOpen(){
   const ov=$('gateOverlay');
   if(ov) ov.classList.remove('hidden');
@@ -1259,21 +1330,48 @@ function gateClose(){
   const ov=$('gateOverlay');
   if(ov) ov.classList.add('hidden');
   document.body.style.overflow='';
+  saveLastVisit();
 }
 function gateShowStep(id){
   document.querySelectorAll('.gate-step').forEach(s=>s.classList.remove('active'));
   const el=$(id); if(el) el.classList.add('active');
 }
+function gateSetHello(name){
+  const helloText=$('gateHelloText');
+  if(helloText) helloText.innerHTML=`Chúc <strong>${escapeHtml(name)}</strong> xem phim vui vẻ &lt;3`;
+}
 function initGate(){
   const ov=$('gateOverlay');
   if(!ov) return;
-  gateShowStep('gateIntro');
-  gateOpen();
-  const nameIn=$('gateName'), enter=$('gateEnter'), start=$('gateStart'), helloText=$('gateHelloText'), nameErr=$('gateNameError');
+  const nameIn=$('gateName'), enter=$('gateEnter'), start=$('gateStart'), nameErr=$('gateNameError');
+  const savedName=loadSavedName();
+  const lastVisit=loadLastVisit();
+  const now=Date.now();
+  const within24h=lastVisit>0 && (now-lastVisit)<GATE_24H;
+
+  // Đã có tên + vào lại trong 24h → bỏ qua cửa chào, vào thẳng
+  if(savedName && within24h){
+    gateClose();
+    return;
+  }
+  // Đã có tên nhưng quá 24h (hoặc chưa ghi lần vào) → chỉ hiện bảng chào
+  if(savedName){
+    gateSetHello(savedName);
+    gateShowStep('gateHello');
+    gateOpen();
+  }else{
+    // Chưa có tên → form nhập tên
+    gateShowStep('gateIntro');
+    gateOpen();
+  }
+
   if(nameIn){
-    try{ const saved=lsGet('tuanmin_name'); if(saved) nameIn.value=saved; }catch(_){}
+    if(savedName) nameIn.value=savedName;
     nameIn.addEventListener('keydown', e=>{ if(e.key==='Enter') enter?.click(); });
-    nameIn.addEventListener('input', ()=>{ if(nameErr) nameErr.classList.remove('show'); });
+    nameIn.addEventListener('input', ()=>{
+      if(nameErr) nameErr.classList.remove('show');
+      if(nameIn) nameIn.style.borderColor='';
+    });
   }
   if(enter) enter.onclick=()=>{
     const name=(nameIn?.value||'').trim();
@@ -1284,8 +1382,8 @@ function initGate(){
     }
     if(nameIn) nameIn.style.borderColor='';
     if(nameErr) nameErr.classList.remove('show');
-    try{ lsSet('tuanmin_name', name); }catch(_){}
-    if(helloText) helloText.innerHTML=`Chúc <strong>${escapeHtml(name)}</strong> xem phim vui vẻ &lt;3`;
+    saveNameForever(name);
+    gateSetHello(name);
     gateShowStep('gateHello');
   };
   if(start) start.onclick=()=>gateClose();
