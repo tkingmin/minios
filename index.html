@@ -998,6 +998,9 @@ function openCountryVerticalList(slug, label){
   const hot=$('hotRow')?.closest('.hot-section'); if(hot) hot.style.display='none';
   const hero=document.querySelector('.hero'); if(hero) hero.style.display='none';
   if($('homeCountrySections')) $('homeCountrySections').style.display='none';
+  // Hiện lại bộ lọc + hàng quốc gia
+  const countrySec=document.querySelector('.country-section'); if(countrySec) countrySec.style.display='';
+  const filterSec=document.querySelector('.filter-section'); if(filterSec) filterSec.style.display='';
 
   document.querySelectorAll('#countryRow .country-btn').forEach(b=>{
     b.classList.toggle('active', (b.dataset.country||'')===slug);
@@ -1023,6 +1026,8 @@ function openCountryVerticalList(slug, label){
 function showHomeLayout(){
   const hot=$('hotRow')?.closest('.hot-section'); if(hot) hot.style.display='';
   const hero=document.querySelector('.hero'); if(hero) hero.style.display='';
+  const countrySec=document.querySelector('.country-section'); if(countrySec) countrySec.style.display='';
+  const filterSec=document.querySelector('.filter-section'); if(filterSec) filterSec.style.display='';
   if($('homeCountrySections')) $('homeCountrySections').style.display='block';
   document.querySelectorAll('#countryRow .country-btn').forEach(b=>{
     b.classList.toggle('active', !(b.dataset.country));
@@ -1108,18 +1113,38 @@ async function loadMovies(){
   }
 }
 async function loadSearch(keyword){
-  if($('homeCountrySections'))$('homeCountrySections').style.display='none';
+  // Giao diện tìm kiếm riêng: ẩn toàn bộ phần trang chủ, chỉ hiện kết quả
+  const hot=$('hotRow')?.closest('.hot-section'); if(hot) hot.style.display='none';
+  const hero=document.querySelector('.hero'); if(hero) hero.style.display='none';
+  const countrySec=document.querySelector('.country-section'); if(countrySec) countrySec.style.display='none';
+  const filterSec=document.querySelector('.filter-section'); if(filterSec) filterSec.style.display='none';
+  if($('homeCountrySections')) $('homeCountrySections').style.display='none';
   const lp=$('latestPreview'); if(lp) lp.style.display='none';
+  const cont=$('continueSection'); if(cont) cont.style.display='none';
+
+  // Bỏ active nav để nhấn mạnh đang ở chế độ tìm kiếm
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+
   movieGrid.style.display='grid';
-  hideError();movieGrid.innerHTML='<div class="loading"><div class="spinner"></div>Đang tìm kiếm...</div>';pagination.innerHTML='';sectionTitle.textContent=`Kết quả: "${keyword}"`;
+  hideError();
+  movieGrid.innerHTML='<div class="loading"><div class="spinner"></div>Đang tìm kiếm...</div>';
+  pagination.innerHTML='';
+  sectionTitle.textContent=`🔍 Kết quả tìm kiếm: "${keyword}"`;
+  $('resultCount').textContent='';
   try{
     const base=p=>`${API_BASE}/films/search?keyword=${encodeURIComponent(keyword)}&page=${p}`;
-    // search API đôi khi không có page — vẫn thử gộp
-    const {items, totalPages: apiTotal}=await fetchManyPages(base, 1, API_PAGES_PER_VIEW);
+    const startApiPage=(currentPage-1)*API_PAGES_PER_VIEW+1;
+    const {items, totalPages: apiTotal}=await fetchManyPages(base, startApiPage, API_PAGES_PER_VIEW);
     totalPages=Math.max(1, Math.ceil((apiTotal||1)/API_PAGES_PER_VIEW));
-    renderMovies(items);renderPagination();
+    renderMovies(items);
+    renderPagination();
+    // Cuộn tới danh sách kết quả
+    const anchor=$('mainListHead')||$('sectionTitle')||movieGrid;
+    if(anchor) setTimeout(()=>anchor.scrollIntoView({behavior:'smooth',block:'start'}),40);
   }catch(e){
-    movieGrid.innerHTML='<div class="empty">Không tìm thấy kết quả.</div>';showError(e.message||'Lỗi mạng')
+    movieGrid.innerHTML='<div class="empty">Không tìm thấy kết quả cho "'+escapeHtml(keyword)+'".<br><button type="button" class="small-btn" id="retrySearch" style="margin-top:12px">↻ Thử lại</button></div>';
+    showError(e.message||'Lỗi mạng');
+    const r=$('retrySearch'); if(r) r.onclick=()=>loadSearch(keyword);
   }
 }
 function movieCardMarkup(item){
@@ -1390,10 +1415,65 @@ function initGate(){
 }
 
 
-document.querySelectorAll('nav button[data-type]').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentType=btn.dataset.type;currentPage=1;searchInput.value='';clearSearch.style.display='none';if(btn.dataset.type==='moi'){showHomeLayout()}else{const hot=$('hotRow')?.closest('.hot-section');if(hot)hot.style.display='none';const hero=document.querySelector('.hero');if(hero)hero.style.display='none';if($('homeCountrySections'))$('homeCountrySections').style.display='none';}loadMovies()});
+document.querySelectorAll('nav button[data-type]').forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentType=btn.dataset.type;
+  currentPage=1;
+  searchInput.value='';
+  clearSearch.style.display='none';
+  if(btn.dataset.type==='moi'){
+    showHomeLayout();
+  }else{
+    const hot=$('hotRow')?.closest('.hot-section'); if(hot) hot.style.display='none';
+    const hero=document.querySelector('.hero'); if(hero) hero.style.display='none';
+    if($('homeCountrySections')) $('homeCountrySections').style.display='none';
+    // Hiện lại bộ lọc + quốc gia khi xem danh sách theo loại
+    const countrySec=document.querySelector('.country-section'); if(countrySec) countrySec.style.display='';
+    const filterSec=document.querySelector('.filter-section'); if(filterSec) filterSec.style.display='';
+  }
+  loadMovies();
+});
 $('logoHome').onclick=e=>{e.preventDefault();currentType='moi';currentPage=1;searchInput.value='';document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.querySelector('nav button[data-type="moi"]').classList.add('active');showHomeLayout();loadMovies();scrollTo({top:0,behavior:'smooth'})};
-searchInput.oninput=()=>{clearTimeout(searchTimeout);clearSearch.style.display=searchInput.value?'block':'none';searchTimeout=setTimeout(()=>{currentPage=1;searchInput.value.trim()?loadSearch(searchInput.value.trim()):loadMovies()},400)};
-clearSearch.onclick=()=>{searchInput.value='';clearSearch.style.display='none';currentPage=1;loadMovies()};
+searchInput.oninput=()=>{
+  clearTimeout(searchTimeout);
+  clearSearch.style.display=searchInput.value?'block':'none';
+  searchTimeout=setTimeout(()=>{
+    currentPage=1;
+    const kw=searchInput.value.trim();
+    if(kw) loadSearch(kw);
+    else {
+      if(currentType==='moi') showHomeLayout();
+      loadMovies();
+    }
+  },400);
+};
+searchInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    clearTimeout(searchTimeout);
+    currentPage=1;
+    const kw=searchInput.value.trim();
+    if(kw){
+      loadSearch(kw);
+    }else{
+      if(currentType==='moi') showHomeLayout();
+      loadMovies();
+    }
+  }
+});
+clearSearch.onclick=()=>{
+  searchInput.value='';
+  clearSearch.style.display='none';
+  currentPage=1;
+  if(currentType==='moi') showHomeLayout();
+  else {
+    // vẫn ẩn hero/hot nếu đang ở tab khác
+    const hot=$('hotRow')?.closest('.hot-section'); if(hot) hot.style.display='none';
+    const hero=document.querySelector('.hero'); if(hero) hero.style.display='none';
+  }
+  loadMovies();
+};
 $('closeModal').onclick=closePlayer;
 playerModal.onclick=e=>{if(e.target===playerModal)closePlayer()};
 document.onkeydown=e=>{if(e.key==='Escape')closePlayer()};
@@ -1414,11 +1494,21 @@ playerFrame.addEventListener('error',()=>{
 
 $('heroFav').onclick=()=>showFavorites();$('favNav').onclick=showFavorites;
 function showFavorites(){
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));$('favNav').classList.add('active');sectionTitle.textContent='Phim yêu thích';pagination.innerHTML='';hideError();
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  $('favNav').classList.add('active');
+  sectionTitle.textContent='♥ Phim yêu thích';
+  pagination.innerHTML='';
+  hideError();
+  // Ẩn giao diện trang chủ, chỉ hiện danh sách yêu thích
+  const hot=$('hotRow')?.closest('.hot-section'); if(hot) hot.style.display='none';
+  const hero=document.querySelector('.hero'); if(hero) hero.style.display='none';
+  const countrySec=document.querySelector('.country-section'); if(countrySec) countrySec.style.display='none';
+  const filterSec=document.querySelector('.filter-section'); if(filterSec) filterSec.style.display='none';
   const lp=$('latestPreview'); if(lp) lp.style.display='none';
   if($('homeCountrySections')) $('homeCountrySections').style.display='none';
   movieGrid.style.display='grid';
-  const f=favs();$('resultCount').textContent=`${f.length} phim`;
+  const f=favs();
+  $('resultCount').textContent=`${f.length} phim`;
   if(!f.length){movieGrid.innerHTML='<div class="empty">Bạn chưa lưu phim nào. Bấm ♡ ở poster để thêm.</div>';return}
   renderMovies(f);
 }
