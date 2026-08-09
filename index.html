@@ -211,8 +211,35 @@ main{max-width:1500px;margin:auto;padding:0 22px 70px}
 .poster{aspect-ratio:2/3;position:relative;overflow:hidden;background:#1a1a22}
 .poster img{width:100%;height:100%;object-fit:cover;transition:transform .35s;background:#1a1a22}
 .card:hover .poster img{transform:scale(1.07)}
-.badge{position:absolute;left:8px;top:8px;background:var(--accent);padding:3px 7px;border-radius:5px;font-size:.68rem;font-weight:700}
-.badge.ep{top:auto;bottom:8px;right:8px;text-align:center;background:rgba(0,0,0,.78);backdrop-filter:blur(5px)}
+.poster-top{
+  position:absolute;left:7px;top:7px;z-index:2;
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  max-width:calc(100% - 44px);pointer-events:none;
+}
+.poster-top-row{
+  display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+}
+.badge{
+  display:inline-flex;align-items:center;
+  background:var(--accent);padding:3px 7px;border-radius:6px;
+  font-size:.66rem;font-weight:700;line-height:1.2;
+  white-space:nowrap;letter-spacing:.2px;
+}
+.badge.year{
+  background:#2563eb;
+  color:#fff;font-weight:700;
+}
+.badge.time{
+  background:rgba(12,12,16,.78);backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.1);
+  color:#e6e6ea;font-weight:600;font-size:.6rem;padding:3px 6px;
+}
+.badge.ep{
+  position:absolute;top:auto;bottom:8px;right:8px;left:auto;
+  text-align:center;background:rgba(0,0,0,.78);backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);max-width:none;z-index:2;
+}
 .card-info{padding:11px 11px 13px}.card h3{font-size:.91rem;line-height:1.35;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card-meta{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-actions{display:flex;gap:6px;margin-top:9px}.small-btn{flex:1;border:1px solid var(--border);background:#101015;color:#fff;border-radius:7px;padding:6px;font-size:.72rem}.small-btn:hover{border-color:var(--accent)}
@@ -334,7 +361,9 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
   .home-country-row .card-info{padding:6px 7px 8px}
   .home-country-row .card h3{font-size:.72rem;-webkit-line-clamp:2}
   .home-country-row .card-meta{font-size:.64rem}
-  .home-country-row .badge{font-size:.58rem;padding:2px 5px}
+  .home-country-row .badge{font-size:.56rem;padding:2px 5px;border-radius:5px}
+  .home-country-row .badge.time{font-size:.52rem;padding:2px 5px}
+  .home-country-row .poster-top{left:5px;top:5px;gap:3px;max-width:calc(100% - 32px)}
   .home-country-row .favorite{width:26px;height:26px;font-size:.8rem}
   .hot-card{flex:0 0 104px;border-radius:10px;height:auto}
   .hot-card-info{padding:6px 7px 8px}
@@ -349,6 +378,9 @@ footer .by-author{color:var(--accent);font-weight:800;letter-spacing:.4px;text-t
   .card-actions{display:none}
   .card-info{padding:6px 7px 8px}
   .card h3{font-size:.72rem}
+  .poster-top{left:5px;top:5px;gap:3px;max-width:calc(100% - 34px)}
+  .badge{font-size:.58rem;padding:2px 5px;border-radius:5px}
+  .badge.time{font-size:.52rem;padding:2px 5px}
 }
  
 .filter-section{margin:10px 0 26px}
@@ -773,11 +805,22 @@ function renderHotMovies(items){
   if(!items.length){hotRow.innerHTML='<div class="empty">Chưa có dữ liệu phim hot.</div>';return}
   hotRow.innerHTML=items.slice(0,12).map((item,i)=>{
     const poster=item.poster_url||item.thumb_url||'';
+    const quality=item.quality||'HD';
+    const year=item.year||item.release_year||'';
+    const time=item.time||item.duration||'';
+    const yearHtml=year?`<span class="badge year">${escapeHtml(String(year))}</span>`:'';
+    const timeHtml=time?`<span class="badge time">${escapeHtml(time)}</span>`:'';
     return `<article class="hot-card" data-slug="${escapeAttr(item.slug)}">
       <div class="poster">
         <img src="${escapeAttr(poster)}" alt="${escapeAttr(item.name)}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/300x450/1a1a22/666?text=No+Poster'">
         <span class="hot-rank">${i+1}</span>
-        <span class="badge">${escapeHtml(item.quality||'HD')}</span>
+        <div class="poster-top">
+          <div class="poster-top-row">
+            <span class="badge">${escapeHtml(quality)}</span>
+            ${yearHtml}
+          </div>
+          ${timeHtml}
+        </div>
       </div>
       <div class="hot-card-info">
         <h3>${escapeHtml(item.name)}</h3>
@@ -1151,9 +1194,23 @@ function movieCardMarkup(item){
   const poster=item.poster_url||item.thumb_url||'';
   const ep=item.current_episode||item.episode_current||'';
   const quality=item.quality||'HD';
+  const year=item.year||item.release_year||'';
+  const time=item.time||item.duration||'';
+  const yearHtml=year?`<span class="badge year">${escapeHtml(String(year))}</span>`:'';
+  const timeHtml=time?`<span class="badge time">${escapeHtml(time)}</span>`:'';
   return `<article class="card" data-slug="${escapeAttr(item.slug)}">
     <button class="favorite ${isFav(item.slug)?'active':''}" title="Yêu thích">${isFav(item.slug)?'♥':'♡'}</button>
-    <div class="poster"><img src="${escapeAttr(poster)}" alt="${escapeAttr(item.name||'')}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/300x450/1a1a22/666?text=No+Poster'"><span class="badge">${escapeHtml(quality)}</span>${ep?`<span class="badge ep">${escapeHtml(ep)}</span>`:''}</div>
+    <div class="poster">
+      <img src="${escapeAttr(poster)}" alt="${escapeAttr(item.name||'')}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/300x450/1a1a22/666?text=No+Poster'">
+      <div class="poster-top">
+        <div class="poster-top-row">
+          <span class="badge">${escapeHtml(quality)}</span>
+          ${yearHtml}
+        </div>
+        ${timeHtml}
+      </div>
+      ${ep?`<span class="badge ep">${escapeHtml(ep)}</span>`:''}
+    </div>
     <div class="card-info"><h3 title="${escapeAttr(item.name||'')}">${escapeHtml(item.name||'')}</h3><div class="card-meta">${escapeHtml(item.original_name||'')}</div><div class="card-actions"><button class="small-btn watch">▶ Xem</button><button class="small-btn fav">${isFav(item.slug)?'♥ Đã lưu':'♡ Lưu'}</button></div></div>
   </article>`;
 }
@@ -1200,35 +1257,113 @@ function showPlayerLoading(on){if(playerLoading) playerLoading.classList.toggle(
 function showPlayerFallback(on){if(playerFallback) playerFallback.classList.toggle('show',!!on)}
 function openCurrentInNewTab(){if(currentPlaySrc) window.open(currentPlaySrc,'_blank','noopener,noreferrer')}
 
-/* ===== Giữ màn hình sáng khi xem phim (Screen Wake Lock) ===== */
+/* ===== Giữ màn hình sáng khi xem phim (mạnh hơn cho Android) ===== */
 let wakeLock=null;
+let keepAwakeTimer=null;
+let noSleepVideo=null;
+
 async function acquireWakeLock(){
-  if(!('wakeLock' in navigator)) return;
-  try{
-    // release cũ trước nếu có
-    if(wakeLock){
-      try{ await wakeLock.release(); }catch(_){}
+  // 1. Screen Wake Lock (Chrome / Edge / Samsung Internet)
+  if('wakeLock' in navigator){
+    try{
+      if(wakeLock){
+        try{ await wakeLock.release(); }catch(_){}
+        wakeLock=null;
+      }
+      wakeLock=await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release',()=>{ wakeLock=null; });
+    }catch(err){
       wakeLock=null;
     }
-    wakeLock=await navigator.wakeLock.request('screen');
-    wakeLock.addEventListener('release',()=>{ wakeLock=null; });
-  }catch(err){
-    // Không hỗ trợ / bị chặn / trình duyệt ẩn tab
-    wakeLock=null;
+  }
+  // 2. Fallback mạnh: video im lặng loop (hoạt động tốt trên Android)
+  enableNoSleepVideo();
+}
+
+function enableNoSleepVideo(){
+  if(noSleepVideo) return;
+  try{
+    // Cách 1: video ẩn từ canvas stream (nhẹ, hoạt động tốt trên Android Chrome)
+    const canvas=document.createElement('canvas');
+    canvas.width=2; canvas.height=2;
+    const ctx=canvas.getContext('2d');
+    if(ctx){ ctx.fillStyle='#000'; ctx.fillRect(0,0,2,2); }
+    noSleepVideo=document.createElement('video');
+    noSleepVideo.setAttribute('muted','');
+    noSleepVideo.setAttribute('loop','');
+    noSleepVideo.setAttribute('playsinline','');
+    noSleepVideo.setAttribute('webkit-playsinline','');
+    noSleepVideo.muted=true;
+    noSleepVideo.loop=true;
+    noSleepVideo.playsInline=true;
+    noSleepVideo.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;bottom:0;right:0;z-index:-1';
+    // Dùng captureStream nếu trình duyệt hỗ trợ
+    if(canvas.captureStream){
+      noSleepVideo.srcObject=canvas.captureStream(1); // 1 fps là đủ
+    }else{
+      // Fallback cực ngắn nếu không có captureStream
+      noSleepVideo.src='data:video/webm;base64,GkXfo0AgQoaBAUL3gQFC8oEEQvOBCEKCQAR3ZWJtQoeBAkKFgQIYU4BnQI0VSalmQCgq17FAAw9CQE2AQAZ3aGFtbXlXQUAGd2hhbW15RIlACECPQAAAAAAAFlSua0AxrkAUA+gAACAKsAACALgAAGHjbXR4hHZyYzIAAAAAAAABAAAAgAAAAAAAAAABAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAABVWlRTTQuMTAwAQAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFlSua0AxrkAUA+gAACAKsAACALgAAGHjbXR4hHZyYzIAAAAAAAABAAAAgAAAAAAAAAABAQAAAAEAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABA';
+    }
+    document.body.appendChild(noSleepVideo);
+    const p=noSleepVideo.play();
+    if(p&&p.catch) p.catch(()=>{});
+  }catch(_){
+    noSleepVideo=null;
   }
 }
+
+function disableNoSleepVideo(){
+  if(noSleepVideo){
+    try{
+      noSleepVideo.pause();
+      noSleepVideo.removeAttribute('src');
+      noSleepVideo.load();
+      noSleepVideo.remove();
+    }catch(_){}
+    noSleepVideo=null;
+  }
+}
+
 function releaseWakeLock(){
   if(wakeLock){
     wakeLock.release().catch(()=>{});
     wakeLock=null;
   }
+  disableNoSleepVideo();
+  if(keepAwakeTimer){
+    clearInterval(keepAwakeTimer);
+    keepAwakeTimer=null;
+  }
 }
-// Khi quay lại tab/app đang mở player → xin lại wake lock
+
+function startKeepAwake(){
+  acquireWakeLock();
+  // Android hay nhả lock → xin lại định kỳ
+  if(keepAwakeTimer) clearInterval(keepAwakeTimer);
+  keepAwakeTimer=setInterval(()=>{
+    if(playerModal.classList.contains('open') && currentPlaySrc){
+      acquireWakeLock();
+    }
+  },12000);
+}
+
+// Khi quay lại app/tab
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible' && playerModal.classList.contains('open') && currentPlaySrc){
-    acquireWakeLock();
+    startKeepAwake();
   }
 });
+
+// Bất kỳ thao tác chạm trong player → xin lại (Android rất hay cần)
+if(typeof playerModal!=='undefined' && playerModal){
+  ['touchstart','pointerdown','click'].forEach(evt=>{
+    playerModal.addEventListener(evt,()=>{
+      if(playerModal.classList.contains('open') && currentPlaySrc){
+        acquireWakeLock();
+      }
+    },{passive:true});
+  });
+}
 
 async function openMovie(slug){
   playerModal.classList.add('open');document.body.style.overflow='hidden';
@@ -1314,8 +1449,8 @@ function playEpisode(){
     try{
       playerFrame.src=src;
       saveHistory(currentMovie,ep.name||ep.slug||'');
-      // Giữ màn hình sáng khi đang phát
-      acquireWakeLock();
+      // Giữ màn hình sáng (Wake Lock + video im lặng — mạnh trên Android)
+      startKeepAwake();
       playerWatchTimer=setTimeout(()=>{
         if(playerLoading && playerLoading.classList.contains('show')) showPlayerLoading(false);
       },8000);
